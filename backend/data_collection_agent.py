@@ -17,7 +17,49 @@ class EtsyDataCollector:
             "Authorization": f"Bearer {self.api_key}"
         }
 
-    # ... (rest of the class implementation remains the same)
+    def get_trending_searches(self):
+        endpoint = f"{self.base_url}/application/trending-searches"
+        response = requests.get(endpoint, headers=self.headers)
+        if response.status_code == 200:
+            return response.json().get('trending_searches', [])
+        else:
+            print(f"Error fetching trending searches: {response.status_code}")
+            return []
+
+    def get_product_data(self, search_term):
+        endpoint = f"{self.base_url}/application/listings/active"
+        params = {
+            "keywords": search_term,
+            "limit": 100,  # Adjust as needed
+            "sort_on": "created",
+            "sort_order": "desc"
+        }
+        response = requests.get(endpoint, headers=self.headers, params=params)
+        if response.status_code == 200:
+            return response.json().get('results', [])
+        else:
+            print(f"Error fetching product data for {search_term}: {response.status_code}")
+            return []
+
+    def collect_data(self):
+        trending_searches = self.get_trending_searches()
+        data = []
+        for search_term in trending_searches:
+            product_data = self.get_product_data(search_term)
+            for product in product_data:
+                data.append({
+                    "search_term": search_term,
+                    "listing_id": product.get("listing_id"),
+                    "title": product.get("title"),
+                    "price": product.get("price", {}).get("amount"),
+                    "currency": product.get("price", {}).get("currency_code"),
+                    "quantity": product.get("quantity"),
+                    "views": product.get("views"),
+                    "num_favorers": product.get("num_favorers"),
+                    "created_timestamp": product.get("created_timestamp"),
+                })
+        
+        return pd.DataFrame(data)
 
 if __name__ == "__main__":
     collector = EtsyDataCollector()

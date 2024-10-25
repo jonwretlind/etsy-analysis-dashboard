@@ -1,6 +1,8 @@
-flask 
-python-dotenv 
-pandas 
+requests
+pandas
+python-dotenv
+flask
+flask-cors
 scikit-learn 
 matplotlib 
 seaborn
