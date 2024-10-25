@@ -21,3 +21,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Add these lines
+.env
+*.pyc
+__pycache__/
+/backend/*.csv
+
+# Virtual environment
+venv/
